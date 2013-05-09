@@ -328,6 +328,13 @@ typedef struct ngx_http_lua_ctx_s {
 
     ngx_int_t                exit_code;
 
+    ngx_int_t                  async_capture;
+    ngx_http_request_t        *current_subrequest;
+    struct ngx_http_lua_ctx_s *current_subrequest_ctx;
+    ngx_chain_t               *current_subrequest_buffer;
+    ngx_int_t                  returned_headers;
+    ngx_http_lua_co_ctx_t     *calling_coctx; /* co ctx for the caller to location.capture */
+
     ngx_http_lua_co_ctx_t   *req_body_reader_co_ctx; /* co ctx for the coroutine
                                                         reading the request
                                                         body */
