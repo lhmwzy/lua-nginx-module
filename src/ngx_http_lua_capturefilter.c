@@ -172,20 +172,21 @@ ngx_http_lua_capture_body_filter(ngx_http_request_t *r, ngx_chain_t *in)
             pr_ctx->current_subrequest_buffer = in;
         }
 
+        /* TODO: Is this line needed? */
         r->parent->write_event_handler = ngx_http_lua_content_wev_handler;
 
         if (!eof) {
+            pr_ctx->wakeup_subrequest = 1;
             /* On EOF, the post subrequest callback is called, and it handles the setting of the resume handler.
                The parent request would be woken up anyway by Nginx.
              */
-            pr_ctx->resume_handler = ngx_http_lua_ngx_capture_buffer_handler;
             if (ngx_http_post_request(r->parent, NULL) != NGX_OK) {
                 return NGX_ERROR;
             }
             return NGX_OK;
         }
     }
-
+    
     ngx_http_lua_discard_bufs(r->pool, in);
 
     return NGX_OK;
