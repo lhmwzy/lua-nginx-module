@@ -200,6 +200,8 @@ typedef struct {
     ngx_flag_t                       transform_underscores_in_resp_headers;
     ngx_flag_t                       log_socket_errors;
     ngx_flag_t                       check_client_abort;
+
+    ngx_flag_t                       correct_location_header;
 } ngx_http_lua_loc_conf_t;
 
 
@@ -379,6 +381,9 @@ typedef struct ngx_http_lua_ctx_s {
 
     unsigned         headers_set:1; /* whether the user has set custom
                                        response headers */
+
+    unsigned         wakeup_subrequest:1;
+    unsigned         subrequest_yield:1;
 
     unsigned         entered_rewrite_phase:1;
     unsigned         entered_access_phase:1;

@@ -162,6 +162,7 @@ ngx_http_lua_capture_body_filter(ngx_http_request_t *r, ngx_chain_t *in)
         ctx->seen_last_for_subreq = 1;
     }
 
+#ifdef NGX_LUA_CAPTURE_DOWN_STREAMING
     if (pr_ctx->async_capture) {
         /* In order to wake the parent up, we should call post and not discard the buffer */
         pr_ctx->current_subrequest = r;       /* Required for wake up (?) */
@@ -186,6 +187,7 @@ ngx_http_lua_capture_body_filter(ngx_http_request_t *r, ngx_chain_t *in)
             return NGX_OK;
         }
     }
+#endif
     
     ngx_http_lua_discard_bufs(r->pool, in);
 

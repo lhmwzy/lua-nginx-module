@@ -75,9 +75,11 @@ static void ngx_http_lua_cancel_subreq(ngx_http_request_t *r);
 static ngx_int_t ngx_http_post_request_to_head(ngx_http_request_t *r);
 static ngx_int_t ngx_http_lua_copy_in_file_request_body(ngx_http_request_t *r);
 
+#ifdef NGX_LUA_CAPTURE_DOWN_STREAMING
 static int ngx_http_lua_ngx_location_capture_stream(lua_State *L);
 static int ngx_http_lua_ngx_location_get_subrequest_buffer(lua_State *L);
 static ngx_int_t _prepare_subrequest_body_chunk(ngx_http_request_t *r, ngx_http_lua_ctx_t *ctx, u_char ** dest_buffer, unsigned long * length);
+#endif
 
 /* ngx.location.capture is just a thin wrapper around
  * ngx.location.capture_multi */
@@ -109,6 +111,7 @@ ngx_http_lua_ngx_location_capture(lua_State *L)
     return ngx_http_lua_ngx_location_capture_multi(L);
 }
 
+#ifdef NGX_LUA_CAPTURE_DOWN_STREAMING
 static int
 ngx_http_lua_ngx_location_capture_stream(lua_State *L)
 {
@@ -155,6 +158,7 @@ ngx_http_lua_ngx_location_capture_stream(lua_State *L)
 
     return ngx_http_lua_ngx_location_capture_multi(L);
 }
+#endif
 
 static int
 ngx_http_lua_ngx_location_capture_multi(lua_State *L)
@@ -643,10 +647,12 @@ ngx_http_lua_ngx_location_capture_multi(lua_State *L)
 
     ctx->no_abort = 1;
 
+#ifdef NGX_LUA_CAPTURE_DOWN_STREAMING
     /* Different resume handler for async requests. */
     if (ctx->async_capture) {
         ctx->resume_handler = ngx_http_lua_ngx_capture_buffer_handler;
     }
+#endif
     
     return lua_yield(L, 0);
 }
@@ -794,6 +800,7 @@ _create_headers_table(lua_State *L, ngx_http_request_t *request)
 }
 
 
+#ifdef NGX_LUA_CAPTURE_DOWN_STREAMING
 static int
 ngx_http_lua_ngx_location_get_subrequest_buffer(lua_State *L)
 {
@@ -973,6 +980,7 @@ ngx_http_lua_ngx_capture_buffer_handler(ngx_http_request_t *r)
     ngx_http_lua_finalize_request(r, NGX_ERROR);
     return NGX_ERROR;
 }
+#endif
 
 static ngx_int_t
 ngx_http_lua_adjust_subrequest(ngx_http_request_t *sr, ngx_uint_t method,
@@ -1785,12 +1793,14 @@ ngx_http_lua_inject_subrequest_api(lua_State *L)
     lua_pushcfunction(L, ngx_http_lua_ngx_location_capture);
     lua_setfield(L, -2, "capture");
 
+#ifdef NGX_LUA_CAPTURE_DOWN_STREAMING
     lua_pushcfunction(L, ngx_http_lua_ngx_location_capture_stream);
     lua_setfield(L, -2, "capture_stream");
 
     /* TODO: Call this 'get_subrequest_body_chunk' */
     lua_pushcfunction(L, ngx_http_lua_ngx_location_get_subrequest_buffer);
     lua_setfield(L, -2, "get_subrequest_buffer");
+#endif
     
     lua_pushcfunction(L, ngx_http_lua_ngx_location_capture_multi);
     lua_setfield(L, -2, "capture_multi");

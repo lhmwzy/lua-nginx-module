@@ -20,9 +20,11 @@
 
 static void ngx_http_lua_content_phase_post_read(ngx_http_request_t *r);
 
+#ifdef NGX_LUA_CAPTURE_DOWN_STREAMING
 static ngx_int_t _is_chain_valid(ngx_chain_t * cl);
 static ngx_int_t _is_last_chain_link(ngx_chain_t * cl);
 static ngx_int_t _post_request_if_not_posted(ngx_http_request_t *r, ngx_http_posted_request_t *pr);
+#endif
 
 ngx_int_t
 ngx_http_lua_content_by_chunk(lua_State *L, ngx_http_request_t *r)
@@ -121,6 +123,7 @@ ngx_http_lua_content_by_chunk(lua_State *L, ngx_http_request_t *r)
 }
 
 
+#ifdef NGX_LUA_CAPTURE_DOWN_STREAMING
 static ngx_int_t
 _post_request_if_not_posted(ngx_http_request_t *r, ngx_http_posted_request_t *pr)
 {
@@ -148,6 +151,7 @@ _is_last_chain_link(ngx_chain_t * cl)
     /* last_in_chain is for subrequests. */
     return cl->buf->last_in_chain || cl->buf->last_buf;
 }
+#endif
 
 void
 ngx_http_lua_content_wev_handler(ngx_http_request_t *r)
@@ -166,6 +170,7 @@ ngx_http_lua_content_wev_handler(ngx_http_request_t *r)
         return;
     }
 
+#ifdef NGX_LUA_CAPTURE_DOWN_STREAMING
     if (ctx->current_subrequest && ctx->wakeup_subrequest) {
         /* Make sure that the subrequest continues */
         if (_post_request_if_not_posted(ctx->current_subrequest, NULL) != NGX_OK) {
@@ -178,6 +183,7 @@ ngx_http_lua_content_wev_handler(ngx_http_request_t *r)
         ctx->current_subrequest_buffer = NULL;
         ctx->wakeup_subrequest = 0;
     }
+#endif
 }
 
 

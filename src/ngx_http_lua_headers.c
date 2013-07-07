@@ -504,17 +504,6 @@ ngx_http_lua_ngx_header_set(lua_State *L)
         }
     }
 
-    if (!ctx->headers_set) {
-        rc = ngx_http_set_content_type(r);
-        if (rc != NGX_OK) {
-            return luaL_error(L,
-                              "failed to set default content type: %d",
-                              (int) rc);
-        }
-
-        ctx->headers_set = 1;
-    }
-
     if (lua_type(L, 3) == LUA_TNIL) {
         value.data = NULL;
         value.len = 0;
@@ -550,6 +539,7 @@ ngx_http_lua_ngx_header_set(lua_State *L)
                 }
             }
 
+            ctx->headers_set = 1;
             return 0;
         }
 
@@ -573,6 +563,8 @@ ngx_http_lua_ngx_header_set(lua_State *L)
         return luaL_error(L, "failed to set header %s (error: %d)",
                           key.data, (int) rc);
     }
+
+    ctx->headers_set = 1;
 
     return 0;
 }

@@ -20,7 +20,6 @@
 #define NGX_HTTP_LUA_SOCKET_FT_PARTIALWRITE  0x0040
 #define NGX_HTTP_LUA_SOCKET_FT_CLIENTABORT   0x0080
 
-
 typedef struct ngx_http_lua_socket_tcp_upstream_s
         ngx_http_lua_socket_tcp_upstream_t;
 
@@ -81,12 +80,20 @@ struct ngx_http_lua_socket_tcp_upstream_s {
     size_t                           request_len;
     ngx_chain_t                     *request_bufs;
 
-    ngx_http_lua_co_ctx_t           *co_ctx;
+    ngx_http_lua_co_ctx_t           *co_ctx_read;
+    ngx_http_lua_co_ctx_t           *co_ctx_write;
 
     ngx_uint_t                       reused;
 
+    /* XXX: read_waiting, write_waiting - if we're waiting for read/write appropriately.
+            waiting - if we're waiting for more general things to happen - resolve, connect, etc.
+     */
     unsigned                         waiting:1;
+    unsigned                         waiting_read:1;
+    unsigned                         waiting_write:1;
     unsigned                         eof:1;
+    unsigned                         fake_eof:1;
+    unsigned                         nonfatal_error:1;
     unsigned                         is_downstream:1;
 };
 

@@ -418,6 +418,10 @@ ngx_http_lua_set_output_header(ngx_http_request_t *r, ngx_str_t key,
     ngx_http_lua_set_header_t        *handlers = ngx_http_lua_set_handlers;
     ngx_uint_t                        i;
 
+    ngx_http_lua_loc_conf_t     *llcf;
+
+    llcf = ngx_http_get_module_loc_conf(r, ngx_http_lua_module);
+
     dd("set header value: %.*s", (int) value.len, value.data);
 
     hv.hash = ngx_hash_key_lc(key.data, key.len);
@@ -435,6 +439,10 @@ ngx_http_lua_set_output_header(ngx_http_request_t *r, ngx_str_t key,
             dd("hv key comparison: %s <> %s", handlers[i].name.data,
                hv.key.data);
 
+            continue;
+        }
+
+        if ((!llcf->correct_location_header) && (ngx_strncasecmp(hv.key.data,  (u_char *) "Location", sizeof("Location")) == 0)) {
             continue;
         }
 
