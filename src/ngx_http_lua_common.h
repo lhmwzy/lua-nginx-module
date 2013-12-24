@@ -219,6 +219,7 @@ typedef struct {
     ngx_str_t                        ssl_crl;
 #endif
 
+    ngx_flag_t                       correct_location_header;
     ngx_flag_t                       use_default_type;
 } ngx_http_lua_loc_conf_t;
 
